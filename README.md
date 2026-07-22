@@ -1,12 +1,12 @@
-# Implementación de un sistema de gestión de pedidos con principios de código limpio
+# Implementación de Código Limpio en un Sistema de Gestión de Cuentas
 
-El equipo de desarrollo de una empresa de e-commerce necesita implementar un sistema de gestión de pedidos que cumpla con los principios de código limpio y eficiente. El sistema debe permitir la creación, modificación y cancelación de pedidos, así como el seguimiento del estado de los mismos. El objetivo es garantizar que el código sea legible, mantenible y escalable.
+El sistema de gestión de cuentas de una entidad financiera necesita mejorar la calidad de su código para asegurar mantenibilidad y escalabilidad. El objetivo es aplicar principios de código limpio como KISS, SOLID, YAGNI y DRY para refactorizar un módulo existente.
 
 ## Informacion General
 
 | Campo | Valor |
 |-------|-------|
-| **Tema** | aplicación de código limpio y eficiente |
+| **Tema** | Aplicación de Código limpio y eficiente |
 | **Nivel** | senior-l2 |
 | **Tipo** | practical |
 | **Tiempo estimado** | 4-5 horas |
@@ -38,87 +38,83 @@ El equipo de desarrollo de una empresa de e-commerce necesita implementar un sis
 
 </details>
 
-### Fase 1: Definición del dominio y reglas de negocio
+### Fase 1: Análisis del Código Existente
 
-**Objetivo:** Entender las reglas de negocio y los requisitos funcionales del sistema de gestión de pedidos.
+**Objetivo:** Identificar áreas del código que violan los principios de código limpio.
 
 **Tiempo estimado:** 1 hora
 
 **Instrucciones:**
 
-- Identifica las entidades clave del dominio (pedidos, productos, clientes, etc.) y sus relaciones.
-- Especifica las reglas de negocio que deben cumplirse al crear, modificar y cancelar pedidos.
-- Define los estados posibles de un pedido y las transiciones entre ellos.
+- Revisa el código fuente del módulo de gestión de cuentas.
+- Identifica las partes que no siguen los principios de código limpio.
 
-**Entregable:** Documento que describe el dominio, las reglas de negocio y los estados de los pedidos.
+**Entregable:** Informe con áreas identificadas y razones.
 
 <details>
 <summary>Pistas de conocimiento</summary>
 
-- Piensa en los invariantes del dominio que deben mantenerse en todo momento.
-- Considera cómo se relacionan las entidades y cómo fluye la información entre ellas.
+- Busca acoplamientos innecesarios entre clases.
+- Identifica clases con responsabilidades múltiples.
 
 </details>
 
-### Fase 2: Diseño y estructuración del código
+### Fase 2: Refactorización del Código
 
-**Objetivo:** Aplicar principios de código limpio para estructurar y organizar el código del sistema de gestión de pedidos.
+**Objetivo:** Aplicar principios de código limpio para refactorizar el módulo de gestión de cuentas.
 
 **Tiempo estimado:** 2 horas
 
 **Instrucciones:**
 
-- Organiza el código en paquetes y clases siguiendo el principio de responsabilidad única (SRP).
-- Aplica el principio de segregación de interfaces (ISP) para definir interfaces claras y específicas.
-- Utiliza patrones de diseño adecuados para resolver problemas comunes del dominio.
+- Aplica los principios KISS, SOLID, YAGNI y DRY para refactorizar el código.
+- Asegura que el código refactorizado sea más limpio y eficiente.
 
-**Entregable:** Estructura de paquetes y clases que sigue los principios de código limpio.
+**Entregable:** Código refactorizado siguiendo los principios de código limpio.
 
 <details>
 <summary>Pistas de conocimiento</summary>
 
-- Recuerda que cada clase debe tener una única razón para cambiar.
-- Las interfaces deben ser pequeñas y específicas para evitar dependencias innecesarias.
+- Utiliza clases más pequeñas y enfocadas.
+- Evita acoplamientos innecesarios entre clases.
 
 </details>
 
-### Fase 3: Implementación de funcionalidades básicas
+### Fase 3: Validación del Código Refactorizado
 
-**Objetivo:** Implementar las funcionalidades básicas del sistema de gestión de pedidos siguiendo los principios de código limpio.
+**Objetivo:** Verificar que el código refactorizado cumple con los principios de código limpio y funciona correctamente.
 
-**Tiempo estimado:** 2 horas
+**Tiempo estimado:** 1 hora
 
 **Instrucciones:**
 
-- Implementa la creación de pedidos, asegurando que se cumplan las reglas de negocio definidas.
-- Implementa la modificación de pedidos, permitiendo cambios en los productos y cantidades.
-- Implementa la cancelación de pedidos, asegurando que se mantengan los invariantes del dominio.
+- Escribe pruebas unitarias para validar el código refactorizado.
+- Asegura que el código refactorizado no introduce nuevos errores.
 
-**Entregable:** Código funcional que implementa las funcionalidades básicas del sistema de gestión de pedidos.
+**Entregable:** Pruebas unitarias que validan el código refactorizado.
 
 <details>
 <summary>Pistas de conocimiento</summary>
 
-- Recuerda aplicar los principios de código limpio en cada parte del código que implementes.
-- Considera cómo manejar los errores y excepciones de manera coherente y limpia.
+- Utiliza pruebas unitarias para verificar la funcionalidad del código.
+- Asegura que las pruebas cubran todos los casos de uso del módulo.
 
 </details>
 
 ## Dimensiones Evaluadas
 
-- **queEs**: ¿Cuáles son las entidades clave del dominio de gestión de pedidos?
-- **paraQueSirve**: ¿Cuáles son las reglas de negocio que deben cumplirse al crear un pedido?
-- **comoSeUsa**: ¿Cómo aplicas el principio de responsabilidad única en la estructuración del código?
-- **erroresComunes**: ¿Cómo manejas los errores y excepciones en el código?
-- **queDecisionesImplica**: ¿Qué patrones de diseño utilizas para resolver problemas comunes del dominio?
+- **queEs**: ¿Qué es el principio KISS y cómo se aplica en el código refactorizado?
+- **paraQueSirve**: ¿Para qué sirve el principio SOLID en el contexto de este reto?
+- **comoSeUsa**: ¿Cómo se usa el principio YAGNI para evitar funcionalidad innecesaria en el código?
+- **erroresComunes**: ¿Cuáles son los errores comunes al aplicar el principio DRY en el código?
+- **queDecisionesImplica**: ¿Qué decisiones implica la aplicación del principio DRY en el código refactorizado?
 
 ## Criterios de Evaluacion
 
-- Identificación correcta de las entidades clave del dominio.
-- Definición clara de las reglas de negocio.
-- Aplicación de los principios de código limpio en la estructuración del código.
-- Implementación funcional de las funcionalidades básicas del sistema.
-- Manejo coherente y limpio de errores y excepciones.
+- Identificación de áreas del código que violan los principios de código limpio.
+- Aplicación de los principios KISS, SOLID, YAGNI y DRY en el código refactorizado.
+- Escritura de pruebas unitarias que validan el código refactorizado.
+- Toma de decisiones basadas en los principios de código limpio y justificación de las mismas.
 
 ---
 

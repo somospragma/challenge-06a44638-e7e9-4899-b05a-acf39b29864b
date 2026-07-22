@@ -123,312 +123,193 @@ El participante que recibirá este proyecto los debe encontrar y resolver él mi
 
 INPUT
 Aquí está la cadena con los archivos:
-package com.example.domain.model;
-
-import java.util.UUID;
-
-public class Order {
-    private UUID id;
-    private String customerId;
-    private String status;
-    private List<OrderItem> items;
-
-    public Order(UUID id, String customerId, String status, List<OrderItem> items) {
-        this.id = id;
-        this.customerId = customerId;
-        this.status = status;
-        this.items = items;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public String getCustomerId() {
-        return customerId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public List<OrderItem> getItems() {
-        return items;
-    }
-}
-
-// === ARCHIVO: src/main/java/com/example/domain/model/OrderItem.java ===
-package com.example.domain.model;
-
-import java.util.UUID;
-
-public class OrderItem {
-    private UUID id;
-    private String productId;
-    private int quantity;
-
-    public OrderItem(UUID id, String productId, int quantity) {
-        this.id = id;
-        this.productId = productId;
-        this.quantity = quantity;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public String getProductId() {
-        return productId;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-}
-
-// === ARCHIVO: src/main/java/com/example/application/service/OrderService.java ===
-package com.example.application.service;
-
-import com.example.domain.model.Order;
-import com.example.infrastructure.persistence.OrderRepository;
-import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.UUID;
-
-@Service
-public class OrderService {
-    private final OrderRepository orderRepository;
-
-    public OrderService(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
-    }
-
-    public Order createOrder(String customerId, List<OrderItem> items) {
-        Order order = new Order(UUID.randomUUID(), customerId, "CREATED", items);
-        return orderRepository.save(order);
-    }
-
-    public Order updateOrder(UUID orderId, List<OrderItem> items) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order not found"));
-        order.setItems(items);
-        return orderRepository.save(order);
-    }
-
-    public void cancelOrder(UUID orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order not found"));
-        order.setStatus("CANCELLED");
-        orderRepository.save(order);
-    }
-
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
-    }
-}
-
-// === ARCHIVO: src/main/java/com/example/application/service/OrderNotFoundException.java ===
-package com.example.application.service;
-
-public class OrderNotFoundException extends RuntimeException {
-    public OrderNotFoundException(String message) {
-        super(message);
-    }
-}
-
-// === ARCHIVO: src/main/java/com/example/infrastructure/persistence/OrderRepository.java ===
-package com.example.infrastructure.persistence;
-
-import com.example.domain.model.Order;
-import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.UUID;
-
-public interface OrderRepository extends JpaRepository<Order, UUID> {
-}
-
-// === ARCHIVO: src/main/resources/application.yml ===
-server:
-  port: 8080
-
-spring:
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driverClassName: org.h2.Driver
-    username: sa
-    password: 
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    show-sql: true
-    hibernate:
-      ddl-auto: create-drop
-
-// === ARCHIVO: src/test/java/com/example/domain/model/OrderTest.java ===
-package com.example.domain.model;
-
-import org.junit.jupiter.api.Test;
-import java.util.UUID;
-import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
-
-public class OrderTest {
-
-    @Test
-    public void testOrderCreation() {
-        UUID id = UUID.randomUUID();
-        String customerId = "customer1";
-        String status = "CREATED";
-        List<OrderItem> items = List.of(new OrderItem(UUID.randomUUID(), "product1", 1));
-
-        Order order = new Order(id, customerId, status, items);
-
-        assertEquals(id, order.getId());
-        assertEquals(customerId, order.getCustomerId());
-        assertEquals(status, order.getStatus());
-        assertEquals(items, order.getItems());
-    }
-}
-
-// === ARCHIVO: src/test/java/com/example/application/service/OrderServiceTest.java ===
-package com.example.application.service;
-
-import com.example.domain.model.Order;
-import com.example.domain.model.OrderItem;
-import com.example.infrastructure.persistence.OrderRepository;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import java.util.List;
-import java.util.UUID;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-
-@SpringBootTest
-public class OrderServiceTest {
-
-    @Autowired
-    private OrderService orderService;
-
-    @MockBean
-    private OrderRepository orderRepository;
-
-    @Test
-    public void testCreateOrder() {
-        UUID orderId = UUID.randomUUID();
-        String customerId = "customer1";
-        List<OrderItem> items = List.of(new OrderItem(UUID.randomUUID(), "product1", 1));
-
-        Mockito.when(orderRepository.save(any(Order.class))).thenReturn(new Order(orderId, customerId, "CREATED", items));
-
-        Order createdOrder = orderService.createOrder(customerId, items);
-
-        assertNotNull(createdOrder);
-        assertEquals(orderId, createdOrder.getId());
-        assertEquals(customerId, createdOrder.getCustomerId());
-        assertEquals("CREATED", createdOrder.getStatus());
-        assertEquals(items, createdOrder.getItems());
-    }
-}
-
-// === ARCHIVO: src/test/java/com/example/infrastructure/persistence/OrderRepositoryTest.java ===
-package com.example.infrastructure.persistence;
-
-import com.example.domain.model.Order;
-import com.example.domain.model.OrderItem;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import java.util.List;
-import java.util.UUID;
-import static org.junit.jupiter.api.Assertions.*;
-
-@DataJpaTest
-public class OrderRepositoryTest {
-
-    @Autowired
-    private TestEntityManager entityManager;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Test
-    public void testSaveAndFindOrder() {
-        UUID orderId = UUID.randomUUID();
-        String customerId = "customer1";
-        List<OrderItem> items = List.of(new OrderItem(UUID.randomUUID(), "product1", 1));
-        Order order = new Order(orderId, customerId, "CREATED", items);
-
-        entityManager.persist(order);
-        entityManager.flush();
-
-        Order foundOrder = orderRepository.findById(orderId).orElse(null);
-
-        assertNotNull(foundOrder);
-        assertEquals(orderId, foundOrder.getId());
-        assertEquals(customerId, foundOrder.getCustomerId());
-        assertEquals("CREATED", foundOrder.getStatus());
-        assertEquals(items, foundOrder.getItems());
-    }
-}
-
-// === ARCHIVO: src/main/java/com/example/OrderManagementApplication.java ===
-package com.example;
+// === ARCHIVO: src/main/java/com/company/accounts/AccountsApplication.java ===
+package com.company.accounts;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class OrderManagementApplication {
+public class AccountsApplication {
     public static void main(String[] args) {
-        SpringApplication.run(OrderManagementApplication.class, args);
+        SpringApplication.run(AccountsApplication.class, args);
     }
 }
+
+// === ARCHIVO: src/main/java/com/company/accounts/application/AccountService.java ===
+package com.company.accounts.application;
+
+import com.company.accounts.domain.Account;
+import com.company.accounts.infrastructure.AccountRepository;
+import org.springframework.stereotype.Service;
+
+@Service
+public class AccountService {
+    private final AccountRepository accountRepository;
+
+    public AccountService(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
+
+    public Account getAccountById(Long id) {
+        return accountRepository.findById(id).orElseThrow();
+    }
+}
+
+// === ARCHIVO: src/main/java/com/company/accounts/domain/Account.java ===
+package com.company.accounts.domain;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
+public class Account {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String accountNumber;
+    private double balance;
+
+    // Getters and setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+}
+
+// === ARCHIVO: src/main/java/com/company/accounts/infrastructure/AccountRepository.java ===
+package com.company.accounts.infrastructure;
+
+import com.company.accounts.domain.Account;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface AccountRepository extends JpaRepository<Account, Long> {}
+
+// === ARCHIVO: src/test/java/com/company/accounts/AccountServiceTest.java ===
+package com.company.accounts;
+
+import com.company.accounts.application.AccountService;
+import com.company.accounts.domain.Account;
+import com.company.accounts.infrastructure.AccountRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
+import java.util.Optional;
+import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest
+class AccountServiceTest {
+
+    @Mock
+    private AccountRepository accountRepository;
+
+    @InjectMocks
+    private AccountService accountService;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void getAccountById() {
+        Long id = 1L;
+        Account account = new Account();
+        account.setId(id);
+        account.setAccountNumber("123456789");
+        account.setBalance(1000.0);
+
+        when(accountRepository.findById(id)).thenReturn(Optional.of(account));
+
+        Account result = accountService.getAccountById(id);
+
+        assertNotNull(result);
+        assertEquals(id, result.getId());
+        assertEquals("123456789", result.getAccountNumber());
+        assertEquals(1000.0, result.getBalance());
+    }
+}
+
+// === ARCHIVO: src/main/resources/application.properties ===
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.h2.console.enabled=true
 
 // === ARCHIVO: pom.xml ===
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.example</groupId>
-    <artifactId>order-management</artifactId>
+    <groupId>com.company</groupId>
+    <artifactId>accounts</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>Order Management</name>
-    <description>Order Management System</description>
-
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.0</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
-
+    <name>Accounts</name>
     <properties>
         <java.version>21</java.version>
+        <spring-boot.version>3.4.0</spring-boot.version>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring-boot.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
 </project>
-
 ```
